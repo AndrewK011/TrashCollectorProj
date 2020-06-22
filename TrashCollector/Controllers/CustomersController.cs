@@ -24,16 +24,13 @@ namespace TrashCollector.Models
         // GET: Customers
         public IActionResult Index()
         {
-
-
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(_context.Customers.Where(c => c.IdentityUserId == userId).SingleOrDefault() == null)
+            Customer customer = _context.Customers.Where(c => c.IdentityUserId == userId).SingleOrDefault();
+            if (customer == null)
             {
-                Customer customer = new Customer();
-                _context.Customers.Add(customer);
-                return RedirectToAction(nameof(Create));
+                return RedirectToAction("Create");
             }
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction("Details", new { id = customer.CustomerId });
         }
 
         // GET: Customers/Details/5
@@ -70,12 +67,14 @@ namespace TrashCollector.Models
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
+                customer.IdentityUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _context.Customers.Add(customer);
+                //_context.Add(customer);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details));
+                return RedirectToAction("Details", new { id = customer.CustomerId });
             }
             //ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction("Details");
         }
 
         // GET: Customers/Edit/5
