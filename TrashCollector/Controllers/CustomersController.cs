@@ -60,6 +60,8 @@ namespace TrashCollector.Models
                 try
                 {
                     _context.Update(customer);
+                    //customer.SuspendStart = customer;
+                    //customer.SuspendEnd = customer;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -132,7 +134,6 @@ namespace TrashCollector.Models
             var customer = await _context.Customers
                 .Include(c => c.IdentityUser)
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
-            //var customer = await _context.Customers.FindAsync(id);
             if (customer == null)
             {
                 return NotFound();

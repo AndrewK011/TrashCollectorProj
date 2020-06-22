@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -10,6 +11,14 @@ namespace TrashCollector.Models
 {
     public class Customer
     {
+        private DateTime suspendStart;
+        private DateTime suspendEnd;
+        public Customer()
+        {
+            suspendStart = DateTime.Today;
+            suspendEnd = DateTime.Today;
+        }
+
         [Key]
         public int CustomerId { get; set; }
         public string FirstName { get; set; }
@@ -20,8 +29,8 @@ namespace TrashCollector.Models
         public DateTime OneTimePickup { get; set; }
         public bool OneTimePickupUsed { get; set; }
         public double MonthlyBalanceOwed { get; set; }
-        public DateTime SuspendStart { get; set; }
-        public DateTime SuspendEnd { get; set; }
+        public DateTime SuspendStart { get { return suspendStart; } set { suspendStart = value; } }
+        public DateTime SuspendEnd { get { return suspendEnd; } set { suspendEnd = value; } }
 
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }
