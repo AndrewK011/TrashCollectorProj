@@ -20,6 +20,8 @@ namespace TrashCollector.Models
         public DateTime OneTimePickup { get; set; }
         public bool OneTimePickupUsed { get; set; }
         public double MonthlyBalanceOwed { get; set; }
+        public DateTime SuspendStart { get; set; }
+        public DateTime SuspendEnd { get; set; }
 
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }

@@ -7,18 +7,20 @@
 
 <h1>Edit</h1>
 
-<h4>Customer</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="CustomerId" />
+            <input type="hidden" asp-for="IdentityUserId" />
+            <input type="hidden" asp-for="IdentityUser.UserName" />
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label"></label>
                 <input asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
+            
             <div class="form-group">
                 <label asp-for="LastName" class="control-label"></label>
                 <input asp-for="LastName" class="form-control" />
@@ -36,7 +38,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PickupDay" class="control-label"></label>
-                <select asp-for="PickupDay" class="form-control"></select>
+                <select asp-for="PickupDay" asp-items="Html.GetEnumSelectList<DayOfWeek>()"></select>
                 <span asp-validation-for="PickupDay" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -46,18 +48,8 @@
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="OneTimePickupUsed" /> @Html.DisplayNameFor(model => model.OneTimePickupUsed)
+                    <input class="form-check-input" asp-for="OneTimePickupUsed" /> @Html.Raw("Use One-Time Pickup?")
                 </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="MonthlyBalanceOwed" class="control-label"></label>
-                <input asp-for="MonthlyBalanceOwed" class="form-control" />
-                <span asp-validation-for="MonthlyBalanceOwed" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdentityUserId" class="control-label"></label>
-                <select asp-for="IdentityUserId" class="form-control" asp-items="ViewBag.IdentityUserId"></select>
-                <span asp-validation-for="IdentityUserId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -67,7 +59,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to Details</a>
 </div>
 
 @section Scripts {
