@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +23,23 @@ namespace TrashCollector.Controllers
         }
 
         // GET: Employees
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.Employees.Include(e => e.IdentityUser);
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == userId).SingleOrDefault();
+            if (employee == null)
+            {
+                return RedirectToAction("Create");
+            }
+            return RedirectToAction("PickupsForToday", new { id = employee.EmployeeId });
+        }
+        public async Task<IActionResult> PickupsForToday(int? id)
+        {
+            var employee = await _context.Employees
+                .Include(c => c.IdentityUser)
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
+            //Employee employee = _context.Employees.Where(e => e.EmployeeId == id).SingleOrDefault();
+            var applicationDbContext = _context.Customers.Where(c => c.ZipCode == employee.ZipCode);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -50,7 +65,6 @@ namespace TrashCollector.Controllers
         // GET: Employees/Create
         public IActionResult Create()
         {
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -59,16 +73,16 @@ namespace TrashCollector.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmployeeId,FirstName,LastName,ZipCode,IdentityUserId")] Employee employee)
+        public async Task<IActionResult> Create(Employee employee)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(employee);
+                employee.IdentityUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _context.Employees.Add(employee);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("PickupsForToday", new { id = employee.EmployeeId });
             }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", employee.IdentityUserId);
-            return View(employee);
+            return RedirectToAction("Index");
         }
 
         // GET: Employees/Edit/5

@@ -13,10 +13,12 @@ namespace TrashCollector.Models
     {
         private DateTime suspendStart;
         private DateTime suspendEnd;
+        private DateTime oneTimePickup;
         public Customer()
         {
             suspendStart = DateTime.Today;
             suspendEnd = DateTime.Today;
+            oneTimePickup = DateTime.Today;
         }
 
         [Key]
@@ -26,7 +28,7 @@ namespace TrashCollector.Models
         public string Address { get; set; }
         public int ZipCode  { get; set; }
         public DayOfWeek PickupDay  { get; set; }
-        public DateTime OneTimePickup { get; set; }
+        public DateTime OneTimePickup { get { return oneTimePickup; } set { oneTimePickup = value; } }
         public bool OneTimePickupUsed { get; set; }
         public double MonthlyBalanceOwed { get; set; }
         public DateTime SuspendStart { get { return suspendStart; } set { suspendStart = value; } }

@@ -116,11 +116,9 @@ namespace TrashCollector.Models
             {
                 customer.IdentityUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Customers.Add(customer);
-                //_context.Add(customer);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", new { id = customer.CustomerId });
             }
-            //ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", customer.IdentityUserId);
             return RedirectToAction("Details");
         }
 
