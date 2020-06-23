@@ -35,11 +35,11 @@ namespace TrashCollector.Controllers
         }
         public async Task<IActionResult> PickupsForToday(int? id)
         {
+            DayOfWeek day = DateTime.Today.DayOfWeek;
             var employee = await _context.Employees
                 .Include(c => c.IdentityUser)
                 .FirstOrDefaultAsync(e => e.EmployeeId == id);
-            //Employee employee = _context.Employees.Where(e => e.EmployeeId == id).SingleOrDefault();
-            var applicationDbContext = _context.Customers.Where(c => c.ZipCode == employee.ZipCode);
+            var applicationDbContext = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && c.PickupDay == day);
             return View(await applicationDbContext.ToListAsync());
         }
 
