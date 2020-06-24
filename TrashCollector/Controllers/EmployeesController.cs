@@ -33,15 +33,52 @@ namespace TrashCollector.Controllers
             }
             return RedirectToAction("PickupsForToday", new { id = employee.EmployeeId });
         }
-        public async Task<IActionResult> PickupsForToday(int? id)
+        public IActionResult PickupsForToday(int? id)
         {
-            DayOfWeek day = DateTime.Today.DayOfWeek;
-            var employee = await _context.Employees
+            CustomerDayViewModel customerDayViewModel = new CustomerDayViewModel();
+            Employee employee = _context.Employees
                 .Include(c => c.IdentityUser)
-                .FirstOrDefaultAsync(e => e.EmployeeId == id);
-            var applicationDbContext = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && c.PickupDay == day);
-            return View(await applicationDbContext.ToListAsync());
+                .FirstOrDefault(e => e.EmployeeId == id);
+            customerDayViewModel.Customers = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek).ToList();
+            return View(customerDayViewModel);
         }
+        [HttpPost]
+        public IActionResult PickupsForToday(CustomerDayViewModel customerDayViewModel)
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == userId).SingleOrDefault();
+            customerDayViewModel.Customers = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek).ToList();
+            return View(customerDayViewModel);
+        }
+
+        public IActionResult ConfirmPickup(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var customer = _context.Customers.Where(m => m.CustomerId == id).FirstOrDefault();
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.WeeklyPickupConfirmed = true;
+            customer.MonthlyBalanceOwed += 10.00;
+
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == userId).SingleOrDefault();
+            return RedirectToAction("PickupsForToday", new { id = employee.EmployeeId });
+        }
+
+        //[HttpPost]
+        //public IActionResult ConfirmPickup(Customer customer)
+        //{
+        //    customer.WeeklyPickupConfirmed = true;
+        //    customer.MonthlyBalanceOwed += 10.00;
+        //    return View();
+        //}
 
         // GET: Employees/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -51,15 +88,15 @@ namespace TrashCollector.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees
+            var customer = await _context.Customers
                 .Include(e => e.IdentityUser)
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
-            if (employee == null)
+                .FirstOrDefaultAsync(m => m.CustomerId == id);
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            return View(customer);
         }
 
         // GET: Employees/Create

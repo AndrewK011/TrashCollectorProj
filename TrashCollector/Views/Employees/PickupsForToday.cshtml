@@ -1,52 +1,52 @@
-﻿@model IEnumerable<TrashCollector.Models.Customer>
+﻿@model TrashCollector.Models.CustomerDayViewModel
 
 @{
     ViewData["Title"] = "Pickups For Today";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<h1>Pickup Addresses</h1>
 
-<h1>Pickups For @DateTime.Today.ToShortDateString()</h1>
-
-
-@*<div class="form-group">
-    <div>
-        Find by Day of Week: @Html.DropDownList("Day of Week", Html.GetEnumSelectList<DayOfWeek>(), null, new { onChange = "PickupDay = this.value;"})
-    </div>
-    <input type="submit" value="Search" />
-</div>*@
+<form asp-action="PickupsForToday">
+    
+        <p>
+            Find by Day of Week: <select asp-for="DayOfWeek" asp-items="Html.GetEnumSelectList<DayOfWeek>()"></select>
+            <input type="submit" value="Submit" class="btn btn-default" />
+        </p>
+    
+</form>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.FirstName)
+                @Html.DisplayNameFor(model => model.Customers[0].FirstName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LastName)
+                @Html.DisplayNameFor(model => model.Customers[0].LastName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Address)
+                @Html.DisplayNameFor(model => model.Customers[0].Address)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ZipCode)
+                @Html.DisplayNameFor(model => model.Customers[0].ZipCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OneTimePickup)
+                @Html.DisplayNameFor(model => model.Customers[0].OneTimePickup)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OneTimePickupUsed)
+                @Html.DisplayNameFor(model => model.Customers[0].OneTimePickupUsed)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SuspendStart)
+                @Html.DisplayNameFor(model => model.Customers[0].SuspendStart)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SuspendEnd)
+                @Html.DisplayNameFor(model => model.Customers[0].SuspendEnd)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Customers)
         {
             <tr>
                 <td>
@@ -75,7 +75,7 @@
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.CustomerId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.CustomerId">Delete</a>
+                    <a asp-action="ConfirmPickup" asp-route-id="@item.CustomerId">Confirm Pickup</a>
                 </td>
             </tr>
         }

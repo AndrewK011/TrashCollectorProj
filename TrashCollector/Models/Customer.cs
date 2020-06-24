@@ -31,6 +31,7 @@ namespace TrashCollector.Models
         public DateTime OneTimePickup { get { return oneTimePickup; } set { oneTimePickup = value; } }
         public bool OneTimePickupUsed { get; set; }
         public double MonthlyBalanceOwed { get; set; }
+        public bool WeeklyPickupConfirmed { get; set; }
         public DateTime SuspendStart { get { return suspendStart; } set { suspendStart = value; } }
         public DateTime SuspendEnd { get { return suspendEnd; } set { suspendEnd = value; } }
 
