@@ -9,5 +9,10 @@ namespace TrashCollector.Models
     {
         public List<Customer> Customers { get; set; }
         public DayOfWeek DayOfWeek { get; set; }
+
+        public CustomerDayViewModel()
+        {
+            Customers = new List<Customer>();
+        }
     }
 }

@@ -115,6 +115,7 @@ namespace TrashCollector.Models
             if (ModelState.IsValid)
             {
                 customer.IdentityUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                //customer.OneTimePickup = customer.OneTimePickup.Date;
                 _context.Customers.Add(customer);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", new { id = customer.CustomerId });

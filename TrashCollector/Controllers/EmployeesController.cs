@@ -36,10 +36,33 @@ namespace TrashCollector.Controllers
         public IActionResult PickupsForToday(int? id)
         {
             CustomerDayViewModel customerDayViewModel = new CustomerDayViewModel();
+            customerDayViewModel.DayOfWeek = DateTime.Today.DayOfWeek;
             Employee employee = _context.Employees
                 .Include(c => c.IdentityUser)
                 .FirstOrDefault(e => e.EmployeeId == id);
-            customerDayViewModel.Customers = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek).ToList();
+            bool oneTimePickupIsInView;
+            foreach (var customer in _context.Customers)
+            {
+                oneTimePickupIsInView = false;
+                if (customer.OneTimePickup.DayOfWeek == customerDayViewModel.DayOfWeek)
+                {
+                    oneTimePickupIsInView = true;
+                }
+
+                if (_context.Customers.Where(c => (c.ZipCode == employee.ZipCode && oneTimePickupIsInView && c.CustomerId == customer.CustomerId) ||
+                     (c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek && c.CustomerId == customer.CustomerId)).SingleOrDefault() != null)
+                {
+
+                    customerDayViewModel.Customers.Add(_context.Customers
+                        .Where(c => (c.ZipCode == employee.ZipCode && oneTimePickupIsInView && c.CustomerId == customer.CustomerId) ||
+                        (c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek && c.CustomerId == customer.CustomerId)).SingleOrDefault());
+                }
+
+            }
+
+            
+            // ||
+            //(c.OneTimePickup.DayOfWeek == customerDayViewModel.DayOfWeek)).ToList();
             return View(customerDayViewModel);
         }
         [HttpPost]
@@ -47,7 +70,28 @@ namespace TrashCollector.Controllers
         {
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             Employee employee = _context.Employees.Where(c => c.IdentityUserId == userId).SingleOrDefault();
-            customerDayViewModel.Customers = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek).ToList();
+            bool oneTimePickupIsInView;
+            foreach (var customer in _context.Customers)
+            {
+                oneTimePickupIsInView = false;
+                if (customer.OneTimePickup.DayOfWeek == customerDayViewModel.DayOfWeek)
+                {
+                    oneTimePickupIsInView = true;
+                }
+
+                if (_context.Customers.Where(c => (c.ZipCode == employee.ZipCode && oneTimePickupIsInView && c.CustomerId == customer.CustomerId) ||
+                     (c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek && c.CustomerId == customer.CustomerId)).SingleOrDefault() != null)
+                {
+
+                    customerDayViewModel.Customers.Add(_context.Customers
+                        .Where(c => (c.ZipCode == employee.ZipCode && oneTimePickupIsInView && c.CustomerId == customer.CustomerId) ||
+                        (c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek && c.CustomerId == customer.CustomerId)).SingleOrDefault());
+                }
+
+            }
+            //customerDayViewModel.Customers = _context.Customers
+            //    .Where(c => (c.ZipCode == employee.ZipCode && c.OneTimePickup.Date == customerDayViewModel) ||
+            //    (c.ZipCode == employee.ZipCode && c.PickupDay == customerDayViewModel.DayOfWeek)).ToList();
             return View(customerDayViewModel);
         }
 
@@ -66,19 +110,12 @@ namespace TrashCollector.Controllers
 
             customer.WeeklyPickupConfirmed = true;
             customer.MonthlyBalanceOwed += 10.00;
+            _context.SaveChanges();
 
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             Employee employee = _context.Employees.Where(c => c.IdentityUserId == userId).SingleOrDefault();
             return RedirectToAction("PickupsForToday", new { id = employee.EmployeeId });
         }
-
-        //[HttpPost]
-        //public IActionResult ConfirmPickup(Customer customer)
-        //{
-        //    customer.WeeklyPickupConfirmed = true;
-        //    customer.MonthlyBalanceOwed += 10.00;
-        //    return View();
-        //}
 
         // GET: Employees/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -144,7 +181,7 @@ namespace TrashCollector.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,FirstName,LastName,ZipCode,IdentityUserId")] Employee employee)
+        public async Task<IActionResult> Edit(int id, Employee employee)
         {
             if (id != employee.EmployeeId)
             {
